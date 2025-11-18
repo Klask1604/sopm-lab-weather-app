@@ -112,7 +112,7 @@ function App() {
       url.searchParams.set("longitude", String(lon));
       url.searchParams.set(
         "current",
-        "temperature_2m,weather_code,wind_speed_10m"
+        "temperature_2m,weather_code,wind_speed_10m,uv_index"
       );
       url.searchParams.set(
         "daily",
@@ -128,6 +128,7 @@ function App() {
         windSpeedKmh:
           Math.round((data?.current?.wind_speed_10m ?? 0) * 10) / 10,
         weatherCode: data?.current?.weather_code ?? 0,
+        uvIndex: data?.current?.uv_index ?? undefined,
         time: data?.current?.time ?? undefined,
         timezone: data?.timezone ?? undefined,
       };

@@ -1,5 +1,5 @@
-import { Card, CardContent, Chip, Typography, Box } from "@mui/material";
-import { Air as AirIcon, LocationOn as LocationOnIcon } from "@mui/icons-material";
+import { Card, CardContent, Chip, Typography, Box, Tooltip } from "@mui/material";
+import { Air as AirIcon, LocationOn as LocationOnIcon, WbSunny as WbSunnyIcon } from "@mui/icons-material";
 import type { CurrentWeather, GeoResult } from "../types";
 import { formatLocationLabel, weatherCodeToText } from "../types";
 
@@ -28,6 +28,13 @@ export default function CurrentWeatherCard({ current, selected }: Props) {
       return t;
     }
   })();
+   function getUVColor(uv: number) {
+            if (uv < 3) return '#4caf50'; // green
+            if (uv < 6) return '#ffeb3b'; // yellow
+            if (uv < 8) return '#ff9800'; // orange
+            if (uv < 11) return '#f44336'; // red
+            return '#6a1b9a'; // purple
+          }
   return (
     <Card className="glass-card current-card" sx={{ mb: 3 }}>
       <CardContent>
@@ -47,6 +54,28 @@ export default function CurrentWeatherCard({ current, selected }: Props) {
           </Box>
         </Box>
         <Box sx={{ display: "flex", gap: 2, mt: 2, flexWrap: "wrap" }}>
+          {typeof current.uvIndex === "number" && (
+            <Box sx={{ flex: "1 1 calc(50% - 8px)", minWidth: "200px" }}>
+              <Card className="glass-meta-card uv-card">
+                <CardContent>
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <Tooltip title="Ultraviolet Index" arrow>
+                      <WbSunnyIcon fontSize="small" style={{ color: getUVColor(current.uvIndex) }} />
+                    </Tooltip>
+                    <Box>
+                      <Typography variant="caption" color="text.secondary">
+                        UV Index
+                      </Typography>
+                      <Typography variant="body1" fontWeight="bold" style={{ color: getUVColor(current.uvIndex) }}>
+                        {current.uvIndex}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Box>
+          )}
+         
           <Box sx={{ flex: "1 1 calc(50% - 8px)", minWidth: "200px" }}>
             <Card className="glass-meta-card">
               <CardContent>
