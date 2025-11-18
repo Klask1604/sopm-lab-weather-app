@@ -144,7 +144,7 @@ function App() {
         time: data?.current?.time ?? undefined,
         timezone: data?.timezone ?? undefined,
       };
-      const days: DailyForecast[] = (data?.daily?.time ?? []).map(
+      const daysRaw: DailyForecast[] = (data?.daily?.time ?? []).map(
         (t: string, idx: number) => ({
           date: t,
           tMinC:
@@ -160,9 +160,14 @@ function App() {
           uvIndexMax: data?.daily?.uv_index_max?.[idx],
         })
       );
+      const days = daysRaw.slice(0, 5);
       setCurrent(cur);
-      setForecast(days.slice(0, 5));
-      setSelectedDay(null);
+      setForecast(days);
+      if (days.length > 0) {
+        setSelectedDay(days[0]);
+      } else {
+        setSelectedDay(null);
+      }
     } catch (e: any) {
       setWeatherError(e?.message ?? "Failed to load weather");
       setCurrent(null);
@@ -228,7 +233,9 @@ function App() {
     // Rain codes: 51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82
     const hasSnow = [71, 73, 75, 77, 85, 86].includes(code);
     const hasThunder = [95, 96, 99].includes(code);
-    const hasRain = [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(code);
+    const hasRain = [
+      51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82,
+    ].includes(code);
     const hasFog = [45, 48].includes(code);
     const isCold = temp < 10;
     const isHot = temp > 30;
@@ -355,18 +362,39 @@ function App() {
             )}
 
             {weatherAlert && !isLoadingWeather && !weatherError && (
-              <Alert severity={weatherAlert.severity} className="glass-alert" sx={{ mb: 2 }}>
+              <Alert
+                severity={weatherAlert.severity}
+                className="glass-alert"
+                sx={{ mb: 3 }}
+              >
                 <AlertTitle>{weatherAlert.title}</AlertTitle>
                 {weatherAlert.message}
               </Alert>
             )}
 
-            {current && !isLoadingWeather && !weatherError && (
-              <CurrentWeatherCard current={current} selected={selected} />
-            )}
-
             {forecast.length > 0 && !isLoadingWeather && !weatherError && (
               <>
+                <Box className="forecast-header">
+                  <Box>
+                    <Typography variant="h5">Next 5 days</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Tap a card to preview details. Tap again to clear.
+                    </Typography>
+                  </Box>
+                  {selectedDay && (
+                    <Typography variant="body2" color="text.secondary">
+                      Showing details for{" "}
+                      {new Date(selectedDay.date).toLocaleDateString(
+                        undefined,
+                        {
+                          weekday: "long",
+                          month: "short",
+                          day: "numeric",
+                        }
+                      )}
+                    </Typography>
+                  )}
+                </Box>
                 <ForecastGrid
                   forecast={forecast}
                   selectedDate={selectedDay?.date ?? null}
@@ -376,8 +404,18 @@ function App() {
                     )
                   }
                 />
-                <SelectedDayDetails selectedDay={selectedDay} />
               </>
+            )}
+
+            {current && !isLoadingWeather && !weatherError && (
+              <Box className="overview-grid">
+                <div>
+                  <CurrentWeatherCard current={current} selected={selected} />
+                </div>
+                <div>
+                  <SelectedDayDetails selectedDay={selectedDay} />
+                </div>
+              </Box>
             )}
           </Box>
 

@@ -20,7 +20,24 @@ function formatDateTime(value?: string) {
 }
 
 export default function SelectedDayDetails({ selectedDay }: Props) {
-  if (!selectedDay) return null;
+  if (!selectedDay) {
+    return (
+      <Card className="glass-card day-details-card placeholder-card">
+        <CardContent>
+          <Typography variant="overline" color="text.secondary">
+            Daily preview
+          </Typography>
+          <Typography variant="h5" gutterBottom>
+            Choose a day
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Tap any card in the 5-day forecast to see sunrise, wind, UV, and more
+            for that specific day.
+          </Typography>
+        </CardContent>
+      </Card>
+    );
+  }
   const dateLabel = new Date(selectedDay.date).toLocaleDateString(undefined, {
     weekday: "long",
     month: "long",
