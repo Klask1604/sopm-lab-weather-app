@@ -13,6 +13,7 @@ import SearchBar from "./components/SearchBar";
 import ResultsList from "./components/ResultsList";
 import CurrentWeatherCard from "./components/CurrentWeatherCard";
 import ForecastGrid from "./components/ForecastGrid";
+import SelectedDayDetails from "./components/SelectedDayDetails";
 import type {
   CurrentWeather,
   DailyForecast,
@@ -57,6 +58,7 @@ function App() {
   const [selected, setSelected] = useState<GeoResult | null>(null);
   const [current, setCurrent] = useState<CurrentWeather | null>(null);
   const [forecast, setForecast] = useState<DailyForecast[]>([]);
+  const [selectedDay, setSelectedDay] = useState<DailyForecast | null>(null);
   const [isLoadingWeather, setIsLoadingWeather] = useState(false);
   const [weatherError, setWeatherError] = useState<string | null>(null);
   const mood: WeatherMood = useMemo(
@@ -116,7 +118,16 @@ function App() {
       );
       url.searchParams.set(
         "daily",
-        "temperature_2m_max,temperature_2m_min,weather_code"
+        [
+          "temperature_2m_max",
+          "temperature_2m_min",
+          "weather_code",
+          "sunrise",
+          "sunset",
+          "precipitation_probability_max",
+          "wind_speed_10m_max",
+          "uv_index_max",
+        ].join(",")
       );
       url.searchParams.set("timezone", "auto");
       const res = await fetch(url.toString());
@@ -139,10 +150,17 @@ function App() {
           tMaxC:
             Math.round((data?.daily?.temperature_2m_max?.[idx] ?? 0) * 10) / 10,
           weatherCode: data?.daily?.weather_code?.[idx] ?? 0,
+          sunrise: data?.daily?.sunrise?.[idx],
+          sunset: data?.daily?.sunset?.[idx],
+          precipitationProbability:
+            data?.daily?.precipitation_probability_max?.[idx],
+          windSpeedMaxKmh: data?.daily?.wind_speed_10m_max?.[idx],
+          uvIndexMax: data?.daily?.uv_index_max?.[idx],
         })
       );
       setCurrent(cur);
       setForecast(days.slice(0, 5));
+      setSelectedDay(null);
     } catch (e: any) {
       setWeatherError(e?.message ?? "Failed to load weather");
       setCurrent(null);
@@ -248,7 +266,18 @@ function App() {
             )}
 
             {forecast.length > 0 && !isLoadingWeather && !weatherError && (
-              <ForecastGrid forecast={forecast} />
+              <>
+                <ForecastGrid
+                  forecast={forecast}
+                  selectedDate={selectedDay?.date ?? null}
+                  onSelectDay={(day) =>
+                    setSelectedDay((prev) =>
+                      prev?.date === day.date ? null : day
+                    )
+                  }
+                />
+                <SelectedDayDetails selectedDay={selectedDay} />
+              </>
             )}
           </Box>
 

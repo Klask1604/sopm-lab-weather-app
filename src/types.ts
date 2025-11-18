@@ -20,6 +20,11 @@ export type DailyForecast = {
   tMinC: number;
   tMaxC: number;
   weatherCode: number;
+  sunrise?: string;
+  sunset?: string;
+  precipitationProbability?: number;
+  windSpeedMaxKmh?: number;
+  uvIndexMax?: number;
 };
 
 export function formatLocationLabel(place: GeoResult): string {
