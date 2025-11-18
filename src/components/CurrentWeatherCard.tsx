@@ -1,5 +1,16 @@
-import { Card, CardContent, Chip, Typography, Box, Tooltip } from "@mui/material";
-import { Air as AirIcon, LocationOn as LocationOnIcon, WbSunny as WbSunnyIcon } from "@mui/icons-material";
+import {
+  Card,
+  CardContent,
+  Chip,
+  Typography,
+  Box,
+  Tooltip,
+} from "@mui/material";
+import {
+  Air as AirIcon,
+  LocationOn as LocationOnIcon,
+  WbSunny as WbSunnyIcon,
+} from "@mui/icons-material";
 import type { CurrentWeather, GeoResult } from "../types";
 import { formatLocationLabel, weatherCodeToText } from "../types";
 import type { JSX } from "react";
@@ -99,6 +110,37 @@ export default function CurrentWeatherCard({ current, selected }: Props) {
     );
   }
 
+  if (typeof current.uvIndex === "number") {
+    metaCards.push(
+      <Box key="uv" sx={{ flex: "1 1 calc(50% - 8px)", minWidth: "200px" }}>
+        <Card className="glass-meta-card uv-card">
+          <CardContent>
+            <Box display="flex" alignItems="center" gap={1}>
+              <Tooltip title="Ultraviolet Index" arrow>
+                <WbSunnyIcon
+                  fontSize="small"
+                  sx={{ color: getUVColor(current.uvIndex) }}
+                />
+              </Tooltip>
+              <Box>
+                <Typography variant="caption" color="text.secondary">
+                  UV Index
+                </Typography>
+                <Typography
+                  variant="body1"
+                  fontWeight="bold"
+                  sx={{ color: getUVColor(current.uvIndex) }}
+                >
+                  {current.uvIndex}
+                </Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
+    );
+  }
+
   return (
     <Card className="glass-card current-card" sx={{ mb: 3 }}>
       <CardContent>
@@ -123,48 +165,17 @@ export default function CurrentWeatherCard({ current, selected }: Props) {
         {metaCards.length > 0 && (
           <Box sx={{ display: "flex", gap: 2, mt: 2, flexWrap: "wrap" }}>
             {metaCards}
-        <Box sx={{ display: "flex", gap: 2, mt: 2, flexWrap: "wrap" }}>
-          {typeof current.uvIndex === "number" && (
-            <Box sx={{ flex: "1 1 calc(50% - 8px)", minWidth: "200px" }}>
-              <Card className="glass-meta-card uv-card">
-                <CardContent>
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <Tooltip title="Ultraviolet Index" arrow>
-                      <WbSunnyIcon fontSize="small" style={{ color: getUVColor(current.uvIndex) }} />
-                    </Tooltip>
-                    <Box>
-                      <Typography variant="caption" color="text.secondary">
-                        UV Index
-                      </Typography>
-                      <Typography variant="body1" fontWeight="bold" style={{ color: getUVColor(current.uvIndex) }}>
-                        {current.uvIndex}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Box>
-          )}
-         
-          <Box sx={{ flex: "1 1 calc(50% - 8px)", minWidth: "200px" }}>
-            <Card className="glass-meta-card">
-              <CardContent>
-                <Box display="flex" alignItems="center" gap={1}>
-                  <AirIcon fontSize="small" />
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">
-                      Wind Speed
-                    </Typography>
-                    <Typography variant="body1" fontWeight="bold">
-                      {current.windSpeedKmh} km/h
-                    </Typography>
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
           </Box>
         )}
       </CardContent>
     </Card>
   );
+}
+
+function getUVColor(value: number): string {
+  if (value < 3) return "#7ED957"; // low - green
+  if (value < 6) return "#FFEA00"; // moderate - yellow
+  if (value < 8) return "#FF8C00"; // high - orange
+  if (value < 11) return "#FF443A"; // very high - red
+  return "#9B30FF"; // extreme - violet
 }
