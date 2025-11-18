@@ -2,6 +2,7 @@ import { Card, CardContent, Chip, Typography, Box, Tooltip } from "@mui/material
 import { Air as AirIcon, LocationOn as LocationOnIcon, WbSunny as WbSunnyIcon } from "@mui/icons-material";
 import type { CurrentWeather, GeoResult } from "../types";
 import { formatLocationLabel, weatherCodeToText } from "../types";
+import type { JSX } from "react";
 
 type Props = {
   current: CurrentWeather | null;
@@ -28,18 +29,84 @@ export default function CurrentWeatherCard({ current, selected }: Props) {
       return t;
     }
   })();
-   function getUVColor(uv: number) {
-            if (uv < 3) return '#4caf50'; // green
-            if (uv < 6) return '#ffeb3b'; // yellow
-            if (uv < 8) return '#ff9800'; // orange
-            if (uv < 11) return '#f44336'; // red
-            return '#6a1b9a'; // purple
-          }
+
+  const metaCards: JSX.Element[] = [];
+
+  metaCards.push(
+    <Box key="wind" sx={{ flex: "1 1 calc(50% - 8px)", minWidth: "200px" }}>
+      <Card className="glass-meta-card">
+        <CardContent>
+          <Box display="flex" alignItems="center" gap={1}>
+            <AirIcon fontSize="small" />
+            <Box>
+              <Typography variant="caption" color="text.secondary">
+                Wind Speed
+              </Typography>
+              <Typography variant="body1" fontWeight="bold">
+                {current.windSpeedKmh} km/h
+              </Typography>
+            </Box>
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
+  );
+
+  if (formattedTime) {
+    metaCards.push(
+      <Box key="time" sx={{ flex: "1 1 calc(50% - 8px)", minWidth: "200px" }}>
+        <Card className="glass-meta-card">
+          <CardContent>
+            <Typography variant="caption" color="text.secondary">
+              Local Time
+            </Typography>
+            <Typography variant="body1" fontWeight="bold">
+              {formattedTime}
+            </Typography>
+            {current.timezone && (
+              <Typography variant="caption" color="text.secondary">
+                Timezone: {current.timezone}
+              </Typography>
+            )}
+          </CardContent>
+        </Card>
+      </Box>
+    );
+  }
+
+  if (selected) {
+    metaCards.push(
+      <Box
+        key="location"
+        sx={{ flex: "1 1 calc(50% - 8px)", minWidth: "200px" }}
+      >
+        <Card className="glass-meta-card">
+          <CardContent>
+            <Box display="flex" alignItems="center" gap={1}>
+              <LocationOnIcon fontSize="small" />
+              <Box>
+                <Typography variant="caption" color="text.secondary">
+                  Location
+                </Typography>
+                <Typography variant="body1" fontWeight="bold" noWrap>
+                  {formatLocationLabel(selected)}
+                </Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
+    );
+  }
+
   return (
     <Card className="glass-card current-card" sx={{ mb: 3 }}>
       <CardContent>
         <Box className="current-main">
           <Box>
+            <Typography variant="subtitle2" color="text.secondary">
+              Live conditions
+            </Typography>
             <Typography variant="h2" className="current-temp">
               {current.temperatureC}
               <Typography component="span" className="unit">
@@ -53,6 +120,9 @@ export default function CurrentWeatherCard({ current, selected }: Props) {
             />
           </Box>
         </Box>
+        {metaCards.length > 0 && (
+          <Box sx={{ display: "flex", gap: 2, mt: 2, flexWrap: "wrap" }}>
+            {metaCards}
         <Box sx={{ display: "flex", gap: 2, mt: 2, flexWrap: "wrap" }}>
           {typeof current.uvIndex === "number" && (
             <Box sx={{ flex: "1 1 calc(50% - 8px)", minWidth: "200px" }}>
@@ -93,50 +163,8 @@ export default function CurrentWeatherCard({ current, selected }: Props) {
               </CardContent>
             </Card>
           </Box>
-          {formattedTime && (
-            <Box sx={{ flex: "1 1 calc(50% - 8px)", minWidth: "200px" }}>
-              <Card className="glass-meta-card">
-                <CardContent>
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <Typography variant="caption" color="text.secondary">
-                      Local Time
-                    </Typography>
-                  </Box>
-                  <Typography variant="body1" fontWeight="bold">
-                    {formattedTime}
-                  </Typography>
-                  {current.timezone && (
-                    <Typography variant="caption" color="text.secondary">
-                      Timezone: {current.timezone}
-                    </Typography>
-                  )}
-                </CardContent>
-              </Card>
-            </Box>
-          )}
-          {selected && (
-            <Box sx={{ flex: "1 1 calc(50% - 8px)", minWidth: "200px" }}>
-              <Card className="glass-meta-card">
-                <CardContent>
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <LocationOnIcon fontSize="small" />
-                    <Box>
-                      <Typography variant="caption" color="text.secondary">
-                        Location
-                      </Typography>
-                      <Typography variant="body1" fontWeight="bold" noWrap>
-                        {formatLocationLabel(selected)}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Box>
-          )}
-        </Box>
+        )}
       </CardContent>
     </Card>
   );
 }
-
-

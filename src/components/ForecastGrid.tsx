@@ -4,9 +4,11 @@ import { weatherCodeToText } from "../types";
 
 type Props = {
   forecast: DailyForecast[];
+  selectedDate: string | null;
+  onSelectDay: (day: DailyForecast) => void;
 };
 
-export default function ForecastGrid({ forecast }: Props) {
+export default function ForecastGrid({ forecast, selectedDate, onSelectDay }: Props) {
   if (!forecast || forecast.length === 0) return null;
   return (
     <Box className="forecast-grid" sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
@@ -19,7 +21,18 @@ export default function ForecastGrid({ forecast }: Props) {
             maxWidth: { xs: "calc(50% - 8px)", sm: "calc(33.333% - 11px)", md: "calc(20% - 13px)" },
           }}
         >
-          <Card className="glass-card forecast-card">
+          <Card
+            className={`glass-card forecast-card ${selectedDate === d.date ? "forecast-selected" : ""}`}
+            onClick={() => onSelectDay(d)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onSelectDay(d);
+              }
+            }}
+          >
             <CardContent>
               <Typography variant="subtitle2" fontWeight="bold" className="forecast-date">
                 {new Date(d.date).toLocaleDateString(undefined, {
