@@ -11,6 +11,8 @@ export type CurrentWeather = {
   temperatureC: number;
   windSpeedKmh: number;
   weatherCode: number;
+  time?: string;
+  timezone?: string;
 };
 
 export type DailyForecast = {

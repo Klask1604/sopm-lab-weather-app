@@ -128,6 +128,8 @@ function App() {
         windSpeedKmh:
           Math.round((data?.current?.wind_speed_10m ?? 0) * 10) / 10,
         weatherCode: data?.current?.weather_code ?? 0,
+        time: data?.current?.time ?? undefined,
+        timezone: data?.timezone ?? undefined,
       };
       const days: DailyForecast[] = (data?.daily?.time ?? []).map(
         (t: string, idx: number) => ({

@@ -10,6 +10,24 @@ type Props = {
 
 export default function CurrentWeatherCard({ current, selected }: Props) {
   if (!current) return null;
+  const formattedTime = (() => {
+    const t = current.time;
+    const tz = current.timezone;
+    if (!t) return null;
+    try {
+      const dt = new Date(t);
+      if (tz) {
+        return new Intl.DateTimeFormat(undefined, {
+          dateStyle: "medium",
+          timeStyle: "short",
+          timeZone: tz,
+        }).format(dt);
+      }
+      return dt.toLocaleString();
+    } catch {
+      return t;
+    }
+  })();
   return (
     <Card className="glass-card current-card" sx={{ mb: 3 }}>
       <CardContent>
@@ -46,6 +64,27 @@ export default function CurrentWeatherCard({ current, selected }: Props) {
               </CardContent>
             </Card>
           </Box>
+          {formattedTime && (
+            <Box sx={{ flex: "1 1 calc(50% - 8px)", minWidth: "200px" }}>
+              <Card className="glass-meta-card">
+                <CardContent>
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <Typography variant="caption" color="text.secondary">
+                      Local Time
+                    </Typography>
+                  </Box>
+                  <Typography variant="body1" fontWeight="bold">
+                    {formattedTime}
+                  </Typography>
+                  {current.timezone && (
+                    <Typography variant="caption" color="text.secondary">
+                      Timezone: {current.timezone}
+                    </Typography>
+                  )}
+                </CardContent>
+              </Card>
+            </Box>
+          )}
           {selected && (
             <Box sx={{ flex: "1 1 calc(50% - 8px)", minWidth: "200px" }}>
               <Card className="glass-meta-card">
