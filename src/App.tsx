@@ -5,6 +5,7 @@ import {
   Container,
   Typography,
   Alert,
+  AlertTitle,
 } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -114,7 +115,7 @@ function App() {
       url.searchParams.set("longitude", String(lon));
       url.searchParams.set(
         "current",
-        "temperature_2m,weather_code,wind_speed_10m"
+        "temperature_2m,weather_code,wind_speed_10m,uv_index"
       );
       url.searchParams.set(
         "daily",
@@ -139,6 +140,7 @@ function App() {
         windSpeedKmh:
           Math.round((data?.current?.wind_speed_10m ?? 0) * 10) / 10,
         weatherCode: data?.current?.weather_code ?? 0,
+        uvIndex: data?.current?.uv_index ?? undefined,
         time: data?.current?.time ?? undefined,
         timezone: data?.timezone ?? undefined,
       };
@@ -214,6 +216,97 @@ function App() {
     return "Search for a city or use your current location";
   }, [selected]);
 
+  // Generate weather alert notification
+  const weatherAlert = useMemo(() => {
+    if (!current) return null;
+
+    const temp = current.temperatureC;
+    const code = current.weatherCode;
+
+    // Snow codes: 71, 73, 75, 77, 85, 86
+    // Thunderstorm codes: 95, 96, 99
+    // Rain codes: 51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82
+    const hasSnow = [71, 73, 75, 77, 85, 86].includes(code);
+    const hasThunder = [95, 96, 99].includes(code);
+    const hasRain = [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(code);
+    const hasFog = [45, 48].includes(code);
+    const isCold = temp < 10;
+    const isHot = temp > 30;
+    const isClear = [0, 1, 2].includes(code);
+    const isCloudyOnly = [3].includes(code); // Just overcast
+
+    if (hasThunder) {
+      return {
+        severity: "warning" as const,
+        title: "⚡ Thunderstorm Alert",
+        message: `Thunderstorms expected. Stay safe indoors if possible.`,
+      };
+    }
+
+    if (hasSnow) {
+      return {
+        severity: "warning" as const,
+        title: "❄️ Snow Warning",
+        message: `Snow or sleet expected. Dress warmly and be careful on roads.`,
+      };
+    }
+
+    if (isCold) {
+      return {
+        severity: "error" as const,
+        title: "🥶 Cold Alert",
+        message: `Temperature is below 10°C (${temp}°C). Dress warmly!`,
+      };
+    }
+
+    if (isHot) {
+      return {
+        severity: "error" as const,
+        title: "🔥 Heat Alert",
+        message: `Temperature is above 30°C (${temp}°C). Stay hydrated!`,
+      };
+    }
+
+    if (isClear) {
+      return {
+        severity: "success" as const,
+        title: "☀️ Perfect Weather",
+        message: `Beautiful ${temp}°C. Perfect time to enjoy the outdoors!`,
+      };
+    }
+
+    if (hasRain) {
+      return {
+        severity: "info" as const,
+        title: "🌧️ Rainy Day",
+        message: `Rain expected. Bring an umbrella!`,
+      };
+    }
+
+    if (hasFog) {
+      return {
+        severity: "info" as const,
+        title: "🌫️ Fog Warning",
+        message: `Fog present. Drive safely with caution.`,
+      };
+    }
+
+    if (isCloudyOnly) {
+      return {
+        severity: "info" as const,
+        title: "☁️ Cloudy",
+        message: `Overcast conditions. ${temp}°C.`,
+      };
+    }
+
+    // Default fallback
+    return {
+      severity: "info" as const,
+      title: "🌤️ Weather Update",
+      message: `Current temperature: ${temp}°C.`,
+    };
+  }, [current]);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -258,6 +351,13 @@ function App() {
             {weatherError && (
               <Alert severity="error" className="glass-alert">
                 {weatherError}
+              </Alert>
+            )}
+
+            {weatherAlert && !isLoadingWeather && !weatherError && (
+              <Alert severity={weatherAlert.severity} className="glass-alert" sx={{ mb: 2 }}>
+                <AlertTitle>{weatherAlert.title}</AlertTitle>
+                {weatherAlert.message}
               </Alert>
             )}
 
