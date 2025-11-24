@@ -413,7 +413,7 @@ function App() {
                   <CurrentWeatherCard current={current} selected={selected} />
                 </div>
                 <div>
-                  <SelectedDayDetails selectedDay={selectedDay} />
+                  <SelectedDayDetails selectedDay={selectedDay} forecast={forecast} />
                 </div>
               </Box>
             )}

@@ -111,6 +111,9 @@ export default function CurrentWeatherCard({ current, selected }: Props) {
   }
 
   if (typeof current.uvIndex === "number") {
+    const uvValue = Math.max(0, current.uvIndex);
+    const uvPercent = Math.min(100, (Math.min(uvValue, 11) / 11) * 100);
+
     metaCards.push(
       <Box key="uv" sx={{ flex: "1 1 calc(50% - 8px)", minWidth: "200px" }}>
         <Card className="glass-meta-card uv-card">
@@ -122,7 +125,7 @@ export default function CurrentWeatherCard({ current, selected }: Props) {
                   sx={{ color: getUVColor(current.uvIndex) }}
                 />
               </Tooltip>
-              <Box>
+              <Box sx={{ flex: 1 }}>
                 <Typography variant="caption" color="text.secondary">
                   UV Index
                 </Typography>
@@ -131,8 +134,40 @@ export default function CurrentWeatherCard({ current, selected }: Props) {
                   fontWeight="bold"
                   sx={{ color: getUVColor(current.uvIndex) }}
                 >
-                  {current.uvIndex}
+                  {Number.isFinite(uvValue) ? Math.round(uvValue * 10) / 10 : uvValue}
                 </Typography>
+
+                
+                <Box sx={{ mt: 1 }}>
+                  <Box
+                    className="uv-bar-wrap"
+                    sx={{
+                      position: "relative",
+                      height: 10,
+                      borderRadius: 99,
+                      overflow: "hidden",
+                      background: "linear-gradient(90deg, #7ED957 0%, #7ED957 25%, #FFEA00 25%, #FFEA00 45%, #FF8C00 45%, #FF8C00 65%, #FF443A 65%, #FF443A 95%, #9B30FF 95%, #9B30FF 100%)",
+                    }}
+                  >
+                    <Box
+                      className="uv-marker"
+                      role="img"
+                      aria-label={`UV index ${uvValue}`}
+                      sx={{
+                        position: "absolute",
+                        top: "50%",
+                        left: `${uvPercent}%`,
+                        transform: "translate(-50%, -50%)",
+                        width: 14,
+                        height: 14,
+                        borderRadius: "50%",
+                        border: "2px solid rgba(255,255,255,0.95)",
+                        boxShadow: "0 4px 8px rgba(0,0,0,0.4)",
+                        background: getUVColor(uvValue),
+                      }}
+                    />
+                  </Box>
+                </Box>
               </Box>
             </Box>
           </CardContent>
@@ -173,9 +208,9 @@ export default function CurrentWeatherCard({ current, selected }: Props) {
 }
 
 function getUVColor(value: number): string {
-  if (value < 3) return "#7ED957"; // low - green
-  if (value < 6) return "#FFEA00"; // moderate - yellow
-  if (value < 8) return "#FF8C00"; // high - orange
-  if (value < 11) return "#FF443A"; // very high - red
-  return "#9B30FF"; // extreme - violet
+  if (value < 3) return "#7ED957"; 
+  if (value < 6) return "#FFEA00"; 
+  if (value < 8) return "#FF8C00"; 
+  if (value < 11) return "#FF443A"; 
+  return "#9B30FF"; 
 }
