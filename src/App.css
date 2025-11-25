@@ -85,7 +85,7 @@
 .app-container.temp-heatwave::after {
   background: linear-gradient(135deg, #8f1c1c 0%, #9f2a19 50%, #b23d20 100%);
 }
-}
+
 
 @keyframes float {
   0%, 100% {
