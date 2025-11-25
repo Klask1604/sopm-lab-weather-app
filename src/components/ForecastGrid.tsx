@@ -19,6 +19,7 @@ export default function ForecastGrid({
       className="forecast-grid forecast-scroll"
       role="listbox"
       aria-label="5 day forecast"
+      sx={{ p: 2 }}
     >
       {forecast.map((d) => (
         <button
