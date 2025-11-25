@@ -48,6 +48,45 @@
   filter: saturate(0.9);
 }
 
+.app-container.temp-freezing::after,
+.app-container.temp-chilly::after,
+.app-container.temp-cool::after,
+.app-container.temp-mild::after,
+.app-container.temp-warm::after,
+.app-container.temp-hot::after,
+.app-container.temp-heatwave::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  transition: opacity 400ms ease;
+}
+
+.app-container.temp-freezing::after {
+  background: linear-gradient(135deg, #03132b 0%, #0a1f3d 50%, #112c52 100%);
+}
+.app-container.temp-chilly::after {
+  background: linear-gradient(135deg, #062144 0%, #10345a 50%, #18486f 100%);
+}
+.app-container.temp-cool::after {
+  background: linear-gradient(135deg, #0f467f 0%, #1f5f9d 50%, #2f78ba 100%);
+}
+.app-container.temp-mild::after {
+  background: linear-gradient(135deg, #b78c29 0%, #a57a21 55%, #8f6519 100%);
+}
+.app-container.temp-warm::after {
+  background: linear-gradient(135deg, #b15b1b 0%, #a14a16 55%, #8c3710 100%);
+}
+.app-container.temp-hot::after {
+  background: linear-gradient(135deg, #a83d34 0%, #97302a 55%, #7f231f 100%);
+}
+.app-container.temp-heatwave::after {
+  background: linear-gradient(135deg, #8f1c1c 0%, #9f2a19 50%, #b23d20 100%);
+}
+}
+
 @keyframes float {
   0%, 100% {
     transform: translate(0, 0) rotate(0deg);

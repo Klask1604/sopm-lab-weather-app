@@ -50,6 +50,17 @@ function makeTheme(mood: WeatherMood) {
   });
 }
 
+function getTempBand(temp?: number): string {
+  if (temp == null || Number.isNaN(temp)) return "neutral";
+  if (temp < 5) return "freezing";
+  if (temp < 10) return "chilly";
+  if (temp < 15) return "cool";
+  if (temp < 20) return "mild";
+  if (temp < 25) return "warm";
+  if (temp < 30) return "hot";
+  return "heatwave";
+}
+
 function App() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<GeoResult[]>([]);
@@ -67,6 +78,10 @@ function App() {
     [current]
   );
   const theme = useMemo(() => makeTheme(mood), [mood]);
+  const tempBand = useMemo(
+    () => getTempBand(current?.temperatureC),
+    [current?.temperatureC]
+  );
 
   useEffect(() => {
     if (!selected) return;
@@ -317,7 +332,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box className={`app-container mood-${mood}`}>
+      <Box className={`app-container mood-${mood} temp-${tempBand}`}>
         <Container maxWidth="md" className="app-content">
           <Box className="app-header">
             <Typography variant="h3" component="h1" className="app-title">
@@ -413,7 +428,10 @@ function App() {
                   <CurrentWeatherCard current={current} selected={selected} />
                 </div>
                 <div>
-                  <SelectedDayDetails selectedDay={selectedDay} forecast={forecast} />
+                  <SelectedDayDetails
+                    selectedDay={selectedDay}
+                    forecast={forecast}
+                  />
                 </div>
               </Box>
             )}
